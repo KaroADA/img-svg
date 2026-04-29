@@ -1,6 +1,7 @@
 .sconsign.dblite
 build/
 docs/
+venv/
 *.o
 *.obj
 *.exe

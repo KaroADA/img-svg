@@ -5,6 +5,8 @@
 
 #include <boost/program_options.hpp>
 #include <iostream>
+// TODO: Delete example
+#include "example.hpp"
 
 namespace po = boost::program_options;
 
@@ -61,6 +63,10 @@ int main(int argc, char *argv[]) {
 
     // TODO: Implement the actual raster to SVG conversion logic here using the
     // parsed options
+
+    // TODO: Delete example
+    uint32_t num = 5;
+    std::cout << num << "! = " << factorial(num) << "\n";
 
   } catch (const po::error &e) {
     std::cerr << "CLI Parsing Error: " << e.what() << std::endl;
