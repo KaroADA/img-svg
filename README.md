@@ -1,18 +1,28 @@
 # img🦍svg
 
-## Instrukcja budowania
+## Wymagania systemowe
 
-Wymagania: Python 3, kompilator C++23.
+- Python 3
+- Kompilator C++23
+- Doxygen do wygenerowania dokumentacji:
+  - **Ubuntu / Debian:** `sudo apt-get install doxygen`
+  - **Arch Linux:** `sudo pacman -S doxygen`
+  - **Windows:** `winget install doxygen.doxygen`
+
+## Instrukcja budowania
 
 ### 1. Środowisko wirtualne i narzędzia
 
 Windows:
+
 ```cmd
 python -m venv venv
 venv\Scripts\activate
 pip install scons conan
 ```
+
 Linux / macOS:
+
 ```bash
 python3 -m venv venv
 source venv/bin/activate
@@ -20,22 +30,27 @@ pip install scons conan
 ```
 
 ### 2. Konfiguracja Conana (tylko za pierwszym razem)
+
 ```bash
 conan profile detect
 ```
 
 ### 3. Pobranie zależności
+
 ```bash
-conan install .
+conan install . --build=missing
 ```
 
 ### 4. Budowanie i testy
+
 Kompilacja projektu:
+
 ```bash
 scons
 ```
 
 Uruchomienie aplikacji:
+
 ```bash
 # Linux/macOS
 ./build/img-svg
@@ -45,6 +60,7 @@ Uruchomienie aplikacji:
 ```
 
 Uruchomienie testów Catch2:
+
 ```bash
 # Linux/macOS
 ./build/run-tests
@@ -54,6 +70,7 @@ Uruchomienie testów Catch2:
 ```
 
 Czyszczenie plików budowania:
+
 ```bash
 scons -c
 ```

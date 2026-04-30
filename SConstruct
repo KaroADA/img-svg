@@ -29,3 +29,6 @@ app = env.Program(target='build/img-svg', source=[main_src] + core_src)
 test_src = Glob('build/test/*.cpp')
 test_app = env.Program(target='build/run-tests', source=test_src + core_src)
 
+# Documentation
+env.Alias('doc', None, 'doxygen Doxyfile')
+env.AlwaysBuild('doc')
