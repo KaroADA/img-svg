@@ -10,6 +10,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#include "types.hpp"
+
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 
@@ -74,30 +76,29 @@ int main(int argc, char *argv[]) {
       std::cerr << "Error: '" << img_path << "' is a directory." << std::endl;
       return 1;
     }
-    int w;
-    int h;
-    int original_channels;
-    unsigned char* image = stbi_load(img_path.c_str(), &w, &h, &original_channels, STBI_rgb);
-    if (image == nullptr) {
+    Image img;
+    int original_channel_count;
+    img.data = stbi_load(img_path.c_str(), &img.w, &img.h, &original_channel_count, STBI_rgb);
+    if (img.data == nullptr) {
         std::cerr << "Error loading image: " << stbi_failure_reason() << std::endl;
         return 1;
     }
 
     // Temporary debug output
-    std::println("Size: {}x{}, Original channels: {}", w, h, original_channels);
-    int center_x = w / 2;
-    int center_y = h / 2;
-    int center_idx = (center_y * w + center_x) * 3;
-    int r = image[center_idx];
-    int g = image[center_idx + 1];
-    int b = image[center_idx + 2];
+    std::println("Size: {}x{}, Original channels: {}", img.w, img.h, original_channel_count);
+    int center_x = img.w / 2;
+    int center_y = img.h / 2;
+    int center_idx = (center_y * img.w + center_x) * 3;
+    int r = img.data[center_idx];
+    int g = img.data[center_idx + 1];
+    int b = img.data[center_idx + 2];
     std::println("Center pixel RGB: ({}, {}, {})", r, g, b);
     long long sum_r = 0, sum_g = 0, sum_b = 0;
-    int total_pixels = w * h;
+    int total_pixels = img.w * img.h;
     for (int i = 0; i < total_pixels * 3; i += 3) {
-        sum_r += image[i];
-        sum_g += image[i + 1];
-        sum_b += image[i + 2];
+        sum_r += img.data[i];
+        sum_g += img.data[i + 1];
+        sum_b += img.data[i + 2];
     }
     std::println("Average RGB: ({}, {}, {})",
                  sum_r / total_pixels,
@@ -107,7 +108,7 @@ int main(int argc, char *argv[]) {
     // TODO: Implement the actual raster to SVG conversion logic here using the
     // parsed options
 
-    stbi_image_free(image);
+    stbi_image_free(img.data);
 
   } catch (const po::error &e) {
     std::cerr << "CLI Parsing Error: " << e.what() << std::endl;
