@@ -5,3 +5,6 @@ venv/
 *.o
 *.obj
 *.exe
+*.png
+*.jpg
+*.svg

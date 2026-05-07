@@ -4,11 +4,14 @@
  */
 
 #include <boost/program_options.hpp>
+#include <boost/filesystem.hpp>
 #include <iostream>
-// TODO: Delete example
-#include "example.hpp"
+#include <print>
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 namespace po = boost::program_options;
+namespace fs = boost::filesystem;
 
 /**
  * @brief Main function handling CLI arguments and program flow.
@@ -61,12 +64,50 @@ int main(int argc, char *argv[]) {
 
     po::notify(vm); // Validates required arguments
 
+    auto img_path = vm["input-file"].as<std::string>();
+    std::println("{}", img_path);
+    if (!fs::exists(img_path)) {
+      std::cerr << "Error: File '" << img_path << "' doesn't exist." << std::endl;
+      return 1;
+    }
+    if (!fs::is_regular_file(img_path)) {
+      std::cerr << "Error: '" << img_path << "' is a directory." << std::endl;
+      return 1;
+    }
+    int w;
+    int h;
+    int original_channels;
+    unsigned char* image = stbi_load(img_path.c_str(), &w, &h, &original_channels, STBI_rgb);
+    if (image == nullptr) {
+        std::cerr << "Error loading image: " << stbi_failure_reason() << std::endl;
+        return 1;
+    }
+
+    // Temporary debug output
+    std::println("Size: {}x{}, Original channels: {}", w, h, original_channels);
+    int center_x = w / 2;
+    int center_y = h / 2;
+    int center_idx = (center_y * w + center_x) * 3;
+    int r = image[center_idx];
+    int g = image[center_idx + 1];
+    int b = image[center_idx + 2];
+    std::println("Center pixel RGB: ({}, {}, {})", r, g, b);
+    long long sum_r = 0, sum_g = 0, sum_b = 0;
+    int total_pixels = w * h;
+    for (int i = 0; i < total_pixels * 3; i += 3) {
+        sum_r += image[i];
+        sum_g += image[i + 1];
+        sum_b += image[i + 2];
+    }
+    std::println("Average RGB: ({}, {}, {})",
+                 sum_r / total_pixels,
+                 sum_g / total_pixels,
+                 sum_b / total_pixels);
+
     // TODO: Implement the actual raster to SVG conversion logic here using the
     // parsed options
 
-    // TODO: Delete example
-    uint32_t num = 5;
-    std::cout << num << "! = " << factorial(num) << "\n";
+    stbi_image_free(image);
 
   } catch (const po::error &e) {
     std::cerr << "CLI Parsing Error: " << e.what() << std::endl;
