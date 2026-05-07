@@ -11,6 +11,7 @@
 #include "stb_image.h"
 
 #include "types.hpp"
+#include "mock.hpp"
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
@@ -104,6 +105,10 @@ int main(int argc, char *argv[]) {
                  sum_r / total_pixels,
                  sum_g / total_pixels,
                  sum_b / total_pixels);
+
+    // Temporary mocks
+    ImageRegions mock1 = mock_segmentation(img);
+    ImageRegions mock2 = mock_segmentation_geom(img);
 
     // TODO: Implement the actual raster to SVG conversion logic here using the
     // parsed options
