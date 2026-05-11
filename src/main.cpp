@@ -10,6 +10,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#include "kmeans.hpp"
 #include "mock.hpp"
 #include "types.hpp"
 
@@ -71,7 +72,6 @@ int main(int argc, char* argv[]) {
     po::notify(vm);  // Validates required arguments
 
     auto img_path = vm["input-file"].as<std::string>();
-    std::println("{}", img_path);
     if (!fs::exists(img_path)) {
       std::cerr << "Error: File '" << img_path << "' doesn't exist."
                 << std::endl;
@@ -91,32 +91,24 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
-    // Temporary debug output
-    std::println("Size: {}x{}, Original channels: {}", img.w, img.h,
-                 original_channel_count);
-    int center_x = img.w / 2;
-    int center_y = img.h / 2;
-    int center_idx = (center_y * img.w + center_x) * 3;
-    int r = img.data[center_idx];
-    int g = img.data[center_idx + 1];
-    int b = img.data[center_idx + 2];
-    std::println("Center pixel RGB: ({}, {}, {})", r, g, b);
-    long long sum_r = 0, sum_g = 0, sum_b = 0;
-    int total_pixels = img.w * img.h;
-    for (int i = 0; i < total_pixels * 3; i += 3) {
-      sum_r += img.data[i];
-      sum_g += img.data[i + 1];
-      sum_b += img.data[i + 2];
+    Config config{.output_path = vm["output"].as<std::string>(),
+                  .colors = vm["colors"].as<int>(),
+                  .min_area = vm["min-area"].as<int>(),
+                  .tolerance = vm["tolerance"].as<double>(),
+                  .corner_threshold = vm["corner-threshold"].as<double>(),
+                  .optimize = vm["optimize"].as<double>(),
+                  .verbose = vm["verbose"].as<bool>()};
+
+    if (config.verbose) {
+      std::println("Image: {}, Size: {}x{}, Original channels: {}", img_path,
+                   img.w, img.h, original_channel_count);
     }
-    std::println("Average RGB: ({}, {}, {})", sum_r / total_pixels,
-                 sum_g / total_pixels, sum_b / total_pixels);
+
+    Stage::KMeans::process(img, config);
 
     // Temporary mocks
     ImageRegions mock1 = mock_segmentation(img);
     ImageRegions mock2 = mock_segmentation_geom(img);
-
-    // TODO: Implement the actual raster to SVG conversion logic here using the
-    // parsed options
 
     stbi_image_free(img.data);
 

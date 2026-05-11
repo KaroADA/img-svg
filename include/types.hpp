@@ -1,8 +1,19 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 #include <unordered_map>
 #include <vector>
+
+struct Config {
+  std::string output_path;
+  int colors;
+  int min_area;
+  double tolerance;
+  double corner_threshold;
+  double optimize;
+  bool verbose;
+};
 
 struct Color {
   uint8_t r;
@@ -14,6 +25,13 @@ struct Image {
   int w;
   int h;
   uint8_t* data;
+};
+
+struct QuantizedImage {
+  int w;
+  int h;
+  std::vector<int> pixel_labels;
+  std::vector<Color> palette;
 };
 
 struct ImageRegions {
