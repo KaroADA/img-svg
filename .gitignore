@@ -2,6 +2,7 @@
 build/
 docs/
 venv/
+compile_commands.json
 *.o
 *.obj
 *.exe

@@ -74,3 +74,25 @@ Czyszczenie plików budowania:
 ```bash
 scons -c
 ```
+
+### 5. Formatowanie kodu
+
+Projekt używa `.clang-format`. Najlepiej formatować przez LSP w edytorze przy zapisie pliku.
+
+Generowanie pliku `compile_commands.json` wymaganego przez LSP `clangd`:
+```bash
+scons compdb
+```
+
+Ręczne formatowanie pliku z konsoli:
+```bash
+clang-format -i src/main.cpp
+```
+
+### 6. Generowanie dokumentacji
+
+Projekt używa narzędzia Doxygen, które tworzy dokumentację API na podstawie komentarzy w plikach źródłowych. Polecenie do generowania:
+```bash
+scons doc
+```
+

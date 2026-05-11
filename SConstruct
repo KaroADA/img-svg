@@ -1,4 +1,4 @@
-env = Environment(CPPPATH=['#include'])
+env = Environment(CPPPATH=['#include'], tools=['default', 'compilation_db'])
 
 # Conan setup
 conandeps = SConscript('./build/generators/SConscript_conandeps')
@@ -32,3 +32,7 @@ test_app = env.Program(target='build/run-tests', source=test_src + core_src)
 # Documentation
 env.Alias('doc', None, 'doxygen Doxyfile')
 env.AlwaysBuild('doc')
+
+# Compilation db
+env.Alias('compdb', env.CompilationDatabase('compile_commands.json'))
+
