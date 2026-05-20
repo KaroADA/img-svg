@@ -13,6 +13,7 @@
 #include "kmeans.hpp"
 #include "mock.hpp"
 #include "types.hpp"
+#include "union_find.hpp"
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
@@ -104,7 +105,8 @@ int main(int argc, char* argv[]) {
                    img.w, img.h, original_channel_count);
     }
 
-    Stage::KMeans::process(img, config);
+    QuantizedImage qimg = Stage::KMeans::process(img, config);
+    Stage::UnionFind::process(qimg, config);
 
     // Temporary mocks
     ImageRegions mock1 = mock_segmentation(img);
