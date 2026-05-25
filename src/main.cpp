@@ -10,6 +10,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#include "edge_detection.hpp"
 #include "kmeans.hpp"
 #include "mock.hpp"
 #include "types.hpp"
@@ -111,6 +112,8 @@ int main(int argc, char* argv[]) {
     // Temporary mocks
     ImageRegions mock1 = mock_segmentation(img);
     ImageRegions mock2 = mock_segmentation_geom(img);
+
+    auto polygons = Stage::EdgeDetection::process(mock1, config);
 
     stbi_image_free(img.data);
 

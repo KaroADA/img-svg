@@ -38,3 +38,13 @@ struct ImageRegions {
   std::vector<std::vector<int>> pixel_regions;
   std::unordered_map<int, Color> region_colors;
 };
+
+struct Point {
+  int x;
+  int y;
+};
+
+struct Polygon {
+  std::vector<Point> points;
+  Color color;
+};
