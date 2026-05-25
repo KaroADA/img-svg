@@ -1,3 +1,4 @@
+#include <cmath>
 #include <cstdlib>
 #include <print>
 #include <ranges>
@@ -38,7 +39,7 @@ int get_closest_cluster_id(const std::vector<Cluster>& clusters,
 
 void print_clusters(const std::vector<Cluster>& clusters) {
   int column = 0;
-  int columns = static_cast<int>(sqrt(clusters.size()));
+  int columns = static_cast<int>(std::sqrt(clusters.size()));
   for (Cluster cluster : clusters) {
     if (column == -1) {
       std::println(",");
