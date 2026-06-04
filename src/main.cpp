@@ -10,6 +10,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#include "bezier_smoothing.hpp"
 #include "edge_detection.hpp"
 #include "kmeans.hpp"
 #include "mock.hpp"
@@ -37,13 +38,13 @@ int main(int argc, char* argv[]) {
                                    "Target number of colors")(
         "min-area", po::value<int>()->default_value(10),
         "Minimum spot area in pixels")(
-        "tolerance", po::value<double>()->default_value(2.0),
+        "tolerance", po::value<double>()->default_value(1.0),
         "Error tolerance determining allowed curve deviation from "
         "edge pixels")(
-        "corner-threshold", po::value<double>()->default_value(60.0),
+        "corner-threshold", po::value<double>()->default_value(125.0),
         "Threshold angle determining whether to "
         "keep a sharp corner or smooth "
-        "the path")("optimize", po::value<double>()->default_value(1.0),
+        "the path")("optimize", po::value<double>()->default_value(1.3),
                     "Controls the strength of the control point reduction "
                     "algorithm on generated curves")(
         "verbose,v", po::bool_switch()->default_value(false),
@@ -120,7 +121,10 @@ int main(int argc, char* argv[]) {
     auto optimized_polygons =
         Stage::PathOptimization::process(polygons, config);
 
-    Stage::SvgOutput::process(optimized_polygons, img.w, img.h, config);
+    auto smoothed_shapes =
+        Stage::BezierSmoothing::process(optimized_polygons, config);
+
+    Stage::SvgOutput::process(smoothed_shapes, img.w, img.h, config);
 
     stbi_image_free(img.data);
 

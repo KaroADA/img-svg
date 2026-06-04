@@ -28,9 +28,12 @@ void rdp_recursive(const std::vector<Point>& points, int start_idx, int end_idx,
   double max_dist = 0.0;
   int index = start_idx;
 
+  const Point& start_pt = points[start_idx];
+  const Point& end_pt =
+      (end_idx == points.size()) ? points[0] : points[end_idx];
+
   for (int i = start_idx + 1; i < end_idx; ++i) {
-    double dist =
-        perpendicular_distance(points[i], points[start_idx], points[end_idx]);
+    double dist = perpendicular_distance(points[i], start_pt, end_pt);
     if (dist > max_dist) {
       max_dist = dist;
       index = i;
@@ -45,19 +48,20 @@ void rdp_recursive(const std::vector<Point>& points, int start_idx, int end_idx,
 }
 
 Polygon simplify_polygon(const Polygon& polygon, double tolerance) {
-  if (polygon.points.size() <= 2)
+  const int n = polygon.points.size();
+  if (n <= 2)
     return polygon;
 
-  std::vector<bool> keep_point(polygon.points.size(), false);
-  keep_point.front() = true;
-  keep_point.back() = true;
+  std::vector<bool> keep_point(n, false);
+  keep_point[0] = true;
 
-  rdp_recursive(polygon.points, 0, polygon.points.size() - 1, tolerance,
-                keep_point);
+  rdp_recursive(polygon.points, 0, n, tolerance, keep_point);
 
   Polygon simplified;
   simplified.color = polygon.color;
-  for (size_t i = 0; i < polygon.points.size(); ++i) {
+  simplified.points.reserve(n);
+
+  for (int i = 0; i < n; ++i) {
     if (keep_point[i]) {
       simplified.points.push_back(polygon.points[i]);
     }

@@ -6,10 +6,10 @@
 
 namespace Stage::SvgOutput {
 
-void process(const std::vector<Polygon>& polygons, int width, int height,
+void process(const std::vector<Shape>& shapes, int width, int height,
              const Config& config) {
   if (config.verbose) {
-    std::println("Exporting {} polygons to SVG: {}", polygons.size(),
+    std::println("Exporting {} shapes to SVG: {}", shapes.size(),
                  config.output_path);
   }
 
@@ -26,22 +26,33 @@ void process(const std::vector<Polygon>& polygons, int width, int height,
                "xmlns=\"http://www.w3.org/2000/svg\">",
                width, height, width, height);
 
-  for (const auto& poly : polygons) {
-    if (poly.points.empty())
+  for (const auto& shape : shapes) {
+    if (shape.nodes.empty())
       continue;
 
-    std::string points_str;
-    for (const auto& pt : poly.points) {
-      points_str += std::format("{},{} ", pt.x, pt.y);
-    }
+    std::string d_path;
+    d_path += std::format("M {:.2f} {:.2f} ", shape.nodes[0].position.x,
+                          shape.nodes[0].position.y);
 
-    if (!points_str.empty()) {
-      points_str.pop_back();
-    }
+    const int n = shape.nodes.size();
 
-    std::println(file,
-                 "  <polygon points=\"{}\" fill=\"#{:02x}{:02x}{:02x}\" />",
-                 points_str, poly.color.r, poly.color.g, poly.color.b);
+    for (int i = 1; i <= n; ++i) {
+      const auto& node = shape.nodes[i % n];
+
+      if (node.is_curve) {
+        d_path +=
+            std::format("C {:.2f} {:.2f}, {:.2f} {:.2f}, {:.2f} {:.2f} ",
+                        node.control1.x, node.control1.y, node.control2.x,
+                        node.control2.y, node.position.x, node.position.y);
+      } else {
+        d_path +=
+            std::format("L {:.2f} {:.2f} ", node.position.x, node.position.y);
+      }
+    }
+    d_path += "Z";
+
+    std::println(file, "  <path d=\"{}\" fill=\"#{:02x}{:02x}{:02x}\" />",
+                 d_path, shape.color.r, shape.color.g, shape.color.b);
   }
 
   std::println(file, "</svg>");

@@ -48,3 +48,20 @@ struct Polygon {
   std::vector<Point> points;
   Color color;
 };
+
+struct Vec2 {
+  double x;
+  double y;
+};
+
+struct PathNode {
+  Vec2 position;
+  Vec2 control1{};
+  Vec2 control2{};
+  bool is_curve{false};
+};
+
+struct Shape {
+  std::vector<PathNode> nodes;
+  Color color;
+};
