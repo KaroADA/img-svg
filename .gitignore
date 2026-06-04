@@ -10,3 +10,6 @@ compile_commands.json
 *.jpg
 *.svg
 .cache/
+
+!test-images/*.png
+!test-images/*.jpg
