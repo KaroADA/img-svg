@@ -1,16 +1,19 @@
 #include <print>
 #include <unordered_map>
+#include <vector>
 #include "types.hpp"
 namespace Stage::UnionFind {
 
 namespace {
 class UnionFind {
   std::vector<int> parent;
+  std::vector<int> size;
 
  public:
-  UnionFind(int size) {
-    parent.resize(size);
-    for (int i = 0; i < size; i++) {
+  UnionFind(int total_size) {
+    parent.resize(total_size);
+    size.assign(total_size, 1);
+    for (int i = 0; i < total_size; i++) {
       parent[i] = i;
     }
   }
@@ -23,8 +26,12 @@ class UnionFind {
   void unite(int i, int j) {
     int irep = find(i);
     int jrep = find(j);
-    parent[irep] = jrep;
+    if (irep != jrep) {
+      parent[irep] = jrep;
+      size[jrep] += size[irep];
+    }
   }
+  int get_size(int i) { return size[find(i)]; }
 };
 }  // namespace
 
@@ -53,6 +60,57 @@ ImageRegions process(const QuantizedImage& image, const Config& config) {
     }
   }
 
+  if (config.verbose) {
+    std::println("Running Noise Reduction, min-area = {}.", config.min_area);
+  }
+
+  // Combine regions smaller than min-area with their biggest neighbors
+  int total_pixels = image.w * image.h;
+  std::vector<int> best_neighbor_root(total_pixels, -1);
+  std::vector<int> best_neighbor_size(total_pixels, -1);
+
+  for (int y = 0; y < image.h; y++) {
+    for (int x = 0; x < image.w; x++) {
+      int i = y * image.w + x;
+      int root = uf.find(i);
+      if (uf.get_size(root) >= config.min_area) {
+        continue;
+      }
+      int neighbors[4] = {(x > 0) ? i - 1 : -1, (x + 1 < image.w) ? i + 1 : -1,
+                          (y > 0) ? i - image.w : -1,
+                          (y + 1 < image.h) ? i + image.w : -1};
+      for (int n_idx : neighbors) {
+        if (n_idx == -1) {
+          continue;
+        }
+        int n_root = uf.find(n_idx);
+        if (n_root == root) {
+          continue;
+        }
+        int n_size = uf.get_size(n_root);
+        if (n_size > best_neighbor_size[root]) {
+          best_neighbor_size[root] = n_size;
+          best_neighbor_root[root] = n_root;
+        }
+      }
+    }
+  }
+
+  int unifies = 0;
+  for (int i = 0; i < total_pixels; i++) {
+    if (uf.find(i) == i && uf.get_size(i) < config.min_area) {
+      int target = best_neighbor_root[i];
+      if (target != -1) {
+        uf.unite(i, target);
+        unifies++;
+      }
+    }
+  }
+
+  if (config.verbose) {
+    std::println("Unified {} regions.", unifies);
+  }
+
   // Index the regions sequentially and return
   ImageRegions result;
   result.pixel_regions.resize(image.h);
@@ -65,7 +123,7 @@ ImageRegions process(const QuantizedImage& image, const Config& config) {
       int root = uf.find(i);
       if (!root_to_region_id.contains(root)) {
         root_to_region_id[root] = num_regions;
-        int label = image.pixel_labels[i];
+        int label = image.pixel_labels[root];
         result.region_colors[num_regions] = image.palette[label];
         num_regions++;
       }
