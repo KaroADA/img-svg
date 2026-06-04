@@ -39,11 +39,10 @@ Polygon trace_polygon(const ImageRegions& regions, int start_x, int start_y,
   int x = start_x;
   int y = start_y;
   int start_dir = -1;
-  int dir = 5;  // Start direction (up-left)
+  int dir = 5;
 
   do {
     polygon.points.emplace_back(x, y);
-    visited[y * w + x] = true;
 
     bool found_next = false;
     for (int i = 0; i < 8; ++i) {
@@ -55,6 +54,11 @@ Polygon trace_polygon(const ImageRegions& regions, int start_x, int start_y,
           regions.pixel_regions[ny][nx] == region_id &&
           is_edge_pixel(regions, nx, ny)) {
         if (!visited[ny * w + nx] || (nx == start_x && ny == start_y)) {
+
+          if (x == start_x && y == start_y && start_dir == new_dir) {
+            break;
+          }
+
           x = nx;
           y = ny;
 
@@ -72,7 +76,11 @@ Polygon trace_polygon(const ImageRegions& regions, int start_x, int start_y,
     if (!found_next) {
       break;
     }
-  } while (x != start_x || y != start_y || (dir + 3) % 8 != start_dir);
+  } while (true);
+
+  for (const auto& pt : polygon.points) {
+    visited[pt.y * w + pt.x] = true;
+  }
 
   if (regions.region_colors.contains(region_id)) {
     polygon.color = regions.region_colors.at(region_id);
