@@ -13,6 +13,7 @@
 #include "edge_detection.hpp"
 #include "kmeans.hpp"
 #include "mock.hpp"
+#include "path_optimization.hpp"
 #include "svg_output.hpp"
 #include "types.hpp"
 #include "union_find.hpp"
@@ -111,12 +112,15 @@ int main(int argc, char* argv[]) {
     ImageRegions regions = Stage::UnionFind::process(qimg, config);
 
     // Temporary mocks
-    ImageRegions mock1 = mock_segmentation(img);
-    ImageRegions mock2 = mock_segmentation_geom(img);
+    // ImageRegions mock1 = mock_segmentation(img);
+    // ImageRegions mock2 = mock_segmentation_geom(img);
 
     auto polygons = Stage::EdgeDetection::process(regions, config);
 
-    Stage::SvgOutput::process(polygons, img.w, img.h, config);
+    auto optimized_polygons =
+        Stage::PathOptimization::process(polygons, config);
+
+    Stage::SvgOutput::process(optimized_polygons, img.w, img.h, config);
 
     stbi_image_free(img.data);
 
