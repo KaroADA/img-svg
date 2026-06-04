@@ -1,6 +1,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <print>
+#include <random>
 #include <ranges>
 #include <vector>
 #include "types.hpp"
@@ -66,31 +67,43 @@ QuantizedImage process(const Image& image, const Config& config) {
   clusters.reserve(config.colors);
   int total_points = image.h * image.w;
 
+  std::mt19937 gen(1);
+  std::uniform_int_distribution<int> dist(0, total_points - 1);
+
   // labels[pixel_id] = cluster_id
   std::vector<int> labels(total_points, -1);
 
-  // Initialize random centers
-  std::vector<Color> used_colors;
-  for (int i = 0; i < config.colors; i++) {
-    while (true) {
-      int point_id = rand() % total_points;
-      Color col = get_color(image, point_id);
+  // Initialize random centers with kmeans++
+  int first_id = dist(gen);
+  clusters.push_back(Cluster{.center = get_color(image, first_id)});
 
-      bool used = false;
-      for (Color c : used_colors) {
-        if (c.r == col.r && c.g == col.g && c.b == col.b) {
-          used = true;
-          break;
-        }
-      }
+  std::vector<double> min_dists_sq(total_points, 1e9);
 
-      if (!used) {
-        used_colors.push_back(col);
-        clusters.push_back(Cluster{.center = col});
-        break;
+  for (int i = 1; i < config.colors; i++) {
+    Color latest_center = clusters.back().center;
+    double sum = 0.0;
+    for (int p = 0; p < total_points; p++) {
+      Color col = get_color(image, p);
+      double dr = latest_center.r - col.r;
+      double dg = latest_center.g - col.g;
+      double db = latest_center.b - col.b;
+      double dist_sq = dr * dr + dg * dg + db * db;
+      if (dist_sq < min_dists_sq[p]) {
+        min_dists_sq[p] = dist_sq;
       }
+      sum += min_dists_sq[p];
     }
+
+    if (sum == 0.0) {
+      std::fill(min_dists_sq.begin(), min_dists_sq.end(), 1.0);
+    }
+
+    std::discrete_distribution<int> weighted_dist(min_dists_sq.begin(),
+                                                  min_dists_sq.end());
+    int next_id = weighted_dist(gen);
+    clusters.push_back(Cluster{.center = get_color(image, next_id)});
   }
+
   if (config.verbose) {
     std::println("Clusters initialized:");
     print_clusters(clusters);
