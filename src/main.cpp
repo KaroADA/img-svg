@@ -13,6 +13,7 @@
 #include "edge_detection.hpp"
 #include "kmeans.hpp"
 #include "mock.hpp"
+#include "svg_output.hpp"
 #include "types.hpp"
 #include "union_find.hpp"
 
@@ -114,6 +115,8 @@ int main(int argc, char* argv[]) {
     ImageRegions mock2 = mock_segmentation_geom(img);
 
     auto polygons = Stage::EdgeDetection::process(regions, config);
+
+    Stage::SvgOutput::process(polygons, img.w, img.h, config);
 
     stbi_image_free(img.data);
 
