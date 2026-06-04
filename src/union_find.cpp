@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <vector>
 #include "types.hpp"
+
 namespace Stage::UnionFind {
 
 namespace {
@@ -66,50 +67,61 @@ ImageRegions process(const QuantizedImage& image, const Config& config) {
 
   // Combine regions smaller than min-area with their biggest neighbors
   int total_pixels = image.w * image.h;
-  std::vector<int> best_neighbor_root(total_pixels, -1);
-  std::vector<int> best_neighbor_size(total_pixels, -1);
+  bool merged_any;
+  int pass = 1;
 
-  for (int y = 0; y < image.h; y++) {
-    for (int x = 0; x < image.w; x++) {
-      int i = y * image.w + x;
-      int root = uf.find(i);
-      if (uf.get_size(root) >= config.min_area) {
-        continue;
-      }
-      int neighbors[4] = {(x > 0) ? i - 1 : -1, (x + 1 < image.w) ? i + 1 : -1,
-                          (y > 0) ? i - image.w : -1,
-                          (y + 1 < image.h) ? i + image.w : -1};
-      for (int n_idx : neighbors) {
-        if (n_idx == -1) {
+  do {
+    merged_any = false;
+    std::vector<int> best_neighbor_root(total_pixels, -1);
+    std::vector<int> best_neighbor_size(total_pixels, -1);
+
+    for (int y = 0; y < image.h; y++) {
+      for (int x = 0; x < image.w; x++) {
+        int i = y * image.w + x;
+        int root = uf.find(i);
+        if (uf.get_size(root) >= config.min_area) {
           continue;
         }
-        int n_root = uf.find(n_idx);
-        if (n_root == root) {
-          continue;
-        }
-        int n_size = uf.get_size(n_root);
-        if (n_size > best_neighbor_size[root]) {
-          best_neighbor_size[root] = n_size;
-          best_neighbor_root[root] = n_root;
+        int neighbors[4] = {
+            (x > 0) ? i - 1 : -1, (x + 1 < image.w) ? i + 1 : -1,
+            (y > 0) ? i - image.w : -1, (y + 1 < image.h) ? i + image.w : -1};
+        for (int n_idx : neighbors) {
+          if (n_idx == -1) {
+            continue;
+          }
+          int n_root = uf.find(n_idx);
+          if (n_root == root) {
+            continue;
+          }
+          int n_size = uf.get_size(n_root);
+          if (n_size > best_neighbor_size[root]) {
+            best_neighbor_size[root] = n_size;
+            best_neighbor_root[root] = n_root;
+          }
         }
       }
     }
-  }
 
-  int unifies = 0;
-  for (int i = 0; i < total_pixels; i++) {
-    if (uf.find(i) == i && uf.get_size(i) < config.min_area) {
-      int target = best_neighbor_root[i];
-      if (target != -1) {
-        uf.unite(i, target);
-        unifies++;
+    int unifies_this_pass = 0;
+    for (int i = 0; i < total_pixels; i++) {
+      if (uf.find(i) == i && uf.get_size(i) < config.min_area) {
+        int target = best_neighbor_root[i];
+        if (target != -1) {
+          int target_root = uf.find(target);
+          if (i != target_root) {
+            uf.unite(i, target_root);
+            merged_any = true;
+            unifies_this_pass++;
+          }
+        }
       }
     }
-  }
 
-  if (config.verbose) {
-    std::println("Unified {} regions.", unifies);
-  }
+    if (config.verbose && merged_any) {
+      std::println("  Pass {}: unified {} regions.", pass++, unifies_this_pass);
+    }
+
+  } while (merged_any);
 
   // Index the regions sequentially and return
   ImageRegions result;
