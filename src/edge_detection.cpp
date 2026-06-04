@@ -105,24 +105,19 @@ std::vector<Polygon> process(const ImageRegions& regions,
   std::vector<bool> visited(h * w, false);
 
   int total_traced = 0;
-  int skipped_by_area = 0;
 
   for (int y = 0; y < h; ++y) {
     for (int x = 0; x < w; ++x) {
       if (!visited[y * w + x] && is_edge_pixel(regions, x, y)) {
         Polygon polygon = trace_polygon(regions, x, y, visited);
         total_traced++;
-        if (polygon.points.size() >= config.min_area) {
-          all_polygons.push_back(polygon);
-          if (config.verbose) {
-            std::println(
-                "  [Polygon {}] Found at ({}, {}), points: {}, color: "
-                "#{:02x}{:02x}{:02x}",
-                all_polygons.size(), x, y, polygon.points.size(),
-                polygon.color.r, polygon.color.g, polygon.color.b);
-          }
-        } else {
-          skipped_by_area++;
+        all_polygons.push_back(polygon);
+        if (config.verbose) {
+          std::println(
+              "  [Polygon {}] Found at ({}, {}), points: {}, color: "
+              "#{:02x}{:02x}{:02x}",
+              all_polygons.size(), x, y, polygon.points.size(), polygon.color.r,
+              polygon.color.g, polygon.color.b);
         }
       }
     }
@@ -132,7 +127,6 @@ std::vector<Polygon> process(const ImageRegions& regions,
     std::println("Edge detection completed:");
     std::println("  Total contours traced: {}", total_traced);
     std::println("  Polygons kept:         {}", all_polygons.size());
-    std::println("  Filtered out:  {}", skipped_by_area);
   }
 
   return all_polygons;

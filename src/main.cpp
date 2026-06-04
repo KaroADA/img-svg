@@ -1,4 +1,22 @@
 /**
+ * @mainpage img🦍svg — Raster Graphics Vectorizer
+ *
+ * @section intro_sec Introduction
+ * A command-line utility designed to convert raster images
+ * into scalable and optimized vector graphics.
+ *
+ * @section pipeline_sec Processing Pipeline
+ * The vectorization process consists of the following consecutive stages:
+ * - @b Resize: Proportionally scales down images exceeding the maximum width.
+ * - @b KMeans: Reduces image color depth through pixel clustering.
+ * - @b UnionFind: Groups connected pixels of identical color and filters noise.
+ * - @b EdgeDetection: Traces region boundaries to extract discrete polygons.
+ * - @b PathOptimization: Reduces vertex count using the RDP algorithm.
+ * - @b BezierSmoothing: Converts polygon edges into continuous Cubic Bezier curves.
+ * - @b SvgOutput: Exports computed shapes into a formatted SVG file.
+ */
+
+/**
  * @file main.cpp
  * @brief Entry point for the CLI Raster Vectorizer tool.
  */
