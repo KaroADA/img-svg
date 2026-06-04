@@ -15,6 +15,7 @@
 #include "kmeans.hpp"
 #include "mock.hpp"
 #include "path_optimization.hpp"
+#include "resize.hpp"
 #include "svg_output.hpp"
 #include "types.hpp"
 #include "union_find.hpp"
@@ -47,6 +48,8 @@ int main(int argc, char* argv[]) {
         "the path")("optimize", po::value<double>()->default_value(1.3),
                     "Controls the strength of the control point reduction "
                     "algorithm on generated curves")(
+        "max-width", po::value<int>()->default_value(1200),
+        "Maximum image width, larger images will be scaled down")(
         "verbose,v", po::bool_switch()->default_value(false),
         "Enable verbose logging");
 
@@ -97,6 +100,7 @@ int main(int argc, char* argv[]) {
     }
 
     Config config{.output_path = vm["output"].as<std::string>(),
+                  .max_width = vm["max-width"].as<int>(),
                   .colors = vm["colors"].as<int>(),
                   .min_area = vm["min-area"].as<int>(),
                   .tolerance = vm["tolerance"].as<double>(),
@@ -109,6 +113,7 @@ int main(int argc, char* argv[]) {
                    img.w, img.h, original_channel_count);
     }
 
+    Stage::Resize::process(img, config);
     QuantizedImage qimg = Stage::KMeans::process(img, config);
     ImageRegions regions = Stage::UnionFind::process(qimg, config);
 

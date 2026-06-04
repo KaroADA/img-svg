@@ -7,6 +7,7 @@
 
 struct Config {
   std::string output_path;
+  int max_width;
   int colors;
   int min_area;
   double tolerance;
