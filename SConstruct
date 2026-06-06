@@ -13,6 +13,18 @@ else:
     # GCC/Clang flags
     env.Append(CXXFLAGS=['-std=c++23', '-Wall', '-Wextra'])
 
+# Add a --test-coverage flag
+AddOption('--test-coverage', action='store_true', dest='test_coverage', help='enable test coverage analysis', default=False)
+if GetOption('test_coverage'):
+    if 'cl' in compiler:
+        # MSVC: Add debug symbols required by OpenCppCoverage
+        env.Append(CXXFLAGS=['/Z7'])
+        env.Append(LINKFLAGS=['/DEBUG'])
+    else:
+        # GCC/Clang: Add gcov coverage and debug flags
+        env.Append(CXXFLAGS=['-g', '-fprofile-arcs', '-ftest-coverage'])
+        env.Append(LINKFLAGS=['--coverage'])
+
 # Build directories
 env.VariantDir('build/src', 'src', duplicate=0)
 env.VariantDir('build/test', 'test', duplicate=0)
