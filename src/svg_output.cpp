@@ -51,8 +51,18 @@ void process(const std::vector<Shape>& shapes, int width, int height,
     }
     d_path += "Z";
 
-    std::println(file, "  <path d=\"{}\" fill=\"#{:02x}{:02x}{:02x}\" />",
-                 d_path, shape.color.r, shape.color.g, shape.color.b);
+    if (config.stroke_width > 0.0) {
+      std::println(file,
+                   "  <path d=\"{}\" fill=\"#{:02x}{:02x}{:02x}\" "
+                   "stroke=\"#{:02x}{:02x}{:02x}\" stroke-width=\"{:.2f}\" "
+                   "stroke-linejoin=\"round\" />",
+                   d_path, shape.color.r, shape.color.g, shape.color.b,
+                   shape.color.r, shape.color.g, shape.color.b,
+                   config.stroke_width);
+    } else {
+      std::println(file, "  <path d=\"{}\" fill=\"#{:02x}{:02x}{:02x}\" />",
+                   d_path, shape.color.r, shape.color.g, shape.color.b);
+    }
   }
 
   std::println(file, "</svg>");

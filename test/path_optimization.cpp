@@ -11,6 +11,7 @@ TEST_CASE("PathOptimization stage simplifies polygons using RDP algorithm",
                 .tolerance = 1.0,
                 .corner_threshold = 125.0,
                 .smoothing = 1.3,
+                .stroke_width = 1.0,
                 .verbose = false};
 
   SECTION("Case 1: Collinear points removal on a straight line") {

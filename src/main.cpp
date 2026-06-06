@@ -67,6 +67,8 @@ int main(int argc, char* argv[]) {
                     "Multiplier for curve smoothing intensity")(
         "max-width", po::value<int>()->default_value(1200),
         "Maximum image width, larger images will be scaled down")(
+        "stroke", po::value<double>()->default_value(1.0),
+        "Width of the stroke in the output SVG, 0 for no stroke")(
         "verbose,v", po::bool_switch()->default_value(false),
         "Enable verbose logging");
 
@@ -123,6 +125,7 @@ int main(int argc, char* argv[]) {
                   .tolerance = vm["tolerance"].as<double>(),
                   .corner_threshold = vm["corner-threshold"].as<double>(),
                   .smoothing = vm["smoothing"].as<double>(),
+                  .stroke_width = vm["stroke"].as<double>(),
                   .verbose = vm["verbose"].as<bool>()};
 
     if (config.verbose) {

@@ -21,6 +21,7 @@ struct Config {
   double tolerance;         ///< Maximum distance for path simplification.
   double corner_threshold;  ///< Angle threshold for smoothing.
   double smoothing;         ///< Multiplier for curve smoothing intensity.
+  double stroke_width;      ///< Width of the stroke in the output SVG.
   bool verbose;             ///< Enables detailed logging to stdout.
 };
 

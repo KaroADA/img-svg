@@ -44,6 +44,7 @@ TEST_CASE("KMeans stage partitions image pixels into K clusters", "[kmeans]") {
                 .tolerance = 1.0,
                 .corner_threshold = 125.0,
                 .smoothing = 1.3,
+                .stroke_width = 1.0,
                 .verbose = false};
 
   SECTION("Case 1: Standard 2-color partitioning on a 4x4 image") {

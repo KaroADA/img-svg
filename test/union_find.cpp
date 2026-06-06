@@ -23,6 +23,7 @@ TEST_CASE("UnionFind stage groups pixels and eliminates noise",
                 .tolerance = 1.0,
                 .corner_threshold = 125.0,
                 .smoothing = 1.3,
+                .stroke_width = 1.0,
                 .verbose = false};
 
   SECTION("Core connected components with noise reduction disabled") {

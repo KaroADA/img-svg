@@ -15,6 +15,7 @@ TEST_CASE("BezierSmoothing stage calculates curves based on corner angles",
                 .tolerance = 1.0,
                 .corner_threshold = 125.0,
                 .smoothing = 1.0,
+                .stroke_width = 1.0,
                 .verbose = false};
 
   SECTION("Case 1: Keeps sharp corners for right angles") {
