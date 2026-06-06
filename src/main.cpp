@@ -63,9 +63,8 @@ int main(int argc, char* argv[]) {
         "corner-threshold", po::value<double>()->default_value(125.0),
         "Threshold angle determining whether to "
         "keep a sharp corner or smooth "
-        "the path")("optimize", po::value<double>()->default_value(1.3),
-                    "Controls the strength of the control point reduction "
-                    "algorithm on generated curves")(
+        "the path")("smoothing", po::value<double>()->default_value(1.0),
+                    "Multiplier for curve smoothing intensity")(
         "max-width", po::value<int>()->default_value(1200),
         "Maximum image width, larger images will be scaled down")(
         "verbose,v", po::bool_switch()->default_value(false),
@@ -123,7 +122,7 @@ int main(int argc, char* argv[]) {
                   .min_area = vm["min-area"].as<int>(),
                   .tolerance = vm["tolerance"].as<double>(),
                   .corner_threshold = vm["corner-threshold"].as<double>(),
-                  .optimize = vm["optimize"].as<double>(),
+                  .smoothing = vm["smoothing"].as<double>(),
                   .verbose = vm["verbose"].as<bool>()};
 
     if (config.verbose) {

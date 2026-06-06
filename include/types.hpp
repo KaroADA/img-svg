@@ -20,7 +20,7 @@ struct Config {
   int min_area;             ///< Minimum pixel area for a region to be kept.
   double tolerance;         ///< Maximum distance for path simplification.
   double corner_threshold;  ///< Angle threshold for smoothing.
-  double optimize;          ///< Strength of curve optimization.
+  double smoothing;         ///< Multiplier for curve smoothing intensity.
   bool verbose;             ///< Enables detailed logging to stdout.
 };
 

@@ -17,7 +17,7 @@ std::vector<Shape> process(const std::vector<Polygon>& polygons,
   if (config.verbose) {
     std::println("Processing Bezier smoothing with parameters:");
     std::println("  corner_threshold: {}", config.corner_threshold);
-    std::println("  optimize: {}", config.optimize);
+    std::println("  optimize: {}", config.smoothing);
   }
 
   std::vector<Shape> shapes;
@@ -73,7 +73,7 @@ std::vector<Shape> process(const std::vector<Polygon>& polygons,
           ty /= lenT;
         }
 
-        double factor = config.optimize * 0.25;
+        double factor = config.smoothing * 0.25;
         forward[i] = {B.x + tx * lenBC * factor, B.y + ty * lenBC * factor};
         backward[i] = {B.x - tx * lenBA * factor, B.y - ty * lenBA * factor};
       } else {

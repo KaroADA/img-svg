@@ -39,7 +39,7 @@ TEST_CASE("Resize stage downscales images based on max_width", "[resize]") {
                 .min_area = 10,
                 .tolerance = 1.0,
                 .corner_threshold = 125.0,
-                .optimize = 1.3,
+                .smoothing = 1.3,
                 .verbose = false};
 
   SECTION(
