@@ -55,7 +55,7 @@ Polygon trace_polygon(const ImageRegions& regions, int start_x, int start_y,
           is_edge_pixel(regions, nx, ny)) {
         if (!visited[ny * w + nx] || (nx == start_x && ny == start_y)) {
 
-          if (x == start_x && y == start_y && start_dir == new_dir) {
+          if (nx == start_x && ny == start_y) {
             break;
           }
 
